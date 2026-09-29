@@ -1,0 +1,10 @@
+{
+	"name": "omp-voice-fix",
+	"version": "0.1.0",
+	"description": "Fix ASR/voice-dictation drafts in the omp composer with a small model — one keystroke, context-aware, cancellable.",
+	"type": "module",
+	"license": "MIT",
+	"omp": {
+		"extensions": ["./index.ts"]
+	}
+}
