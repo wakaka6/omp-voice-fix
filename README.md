@@ -50,7 +50,8 @@ Restart omp after adding it.
 {
 	"shortcut": ["f5", "alt+f"],
 	"model": "@tiny",
-	"locale": "auto"
+	"locale": "auto",
+	"language": "auto"
 }
 ```
 
@@ -59,8 +60,10 @@ Restart omp after adding it.
 | `shortcut` | `["f5", "alt+f"]` | Key id or array of key ids (`f5`, `alt+f`, `ctrl+shift+v`, …). Note: some terminals/multiplexers swallow function keys — `alt+f` is a reliable fallback. |
 | `model` | `"@tiny"` | Model selector or role alias (`@tiny`, `@smol`, `provider/model-id`, optional `:effort` suffix). Auth is resolved through omp's `modelRegistry`, no extra API keys needed. |
 | `locale` | `"auto"` | `"en"` / `"zh"` / `"auto"` (auto reads `LC_ALL`/`LANG`, defaults to English). |
-
+| `language` | `"auto"` | The language the draft is dictated in, stated to the model so it keeps the output in that language. `"auto"` derives it from the UI locale — set it explicitly (e.g. `"Chinese"`, `"Japanese"`) when dictation differs from your system language. |
 Editing the config file requires an omp restart; `/voice-fix-key` writes the file for you.
+
+A `voice-fix.config.example.json` ships alongside the extension as a starting template.
 
 ## How it works
 
@@ -109,6 +112,17 @@ extensions:
 | 改快捷键 | `/voice-fix-key <键名>`（重启生效） |
 | 校对中取消 | `Esc` |
 | 撤销校对 | `Ctrl+-`/`Ctrl+_` 或 `/vf-undo` |
+
+## 配置
+
+`voice-fix.config.json`（位于 `index.ts` 旁，可参考随包附带的 `voice-fix.config.example.json`）：
+
+| 字段 | 默认 | 说明 |
+|---|---|---|
+| `shortcut` | `["f5", "alt+f"]` | 快捷键键名或键名数组 |
+| `model` | `"@tiny"` | 模型选择器或角色别名 |
+| `locale` | `"auto"` | `"en"` / `"zh"` / `"auto"`（自动读取 `LC_ALL`/`LANG`） |
+| `language` | `"auto"` | 口述语言，会告知模型让输出保持该语言；`"auto"` 跟随系统语言，口述与系统语言不同时请显式设置（如 `"Chinese"`、`"Japanese"`） |
 
 ## License
 

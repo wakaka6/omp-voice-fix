@@ -17,7 +17,8 @@
 	"files": [
 		"index.ts",
 		"README.md",
-		"LICENSE"
+		"LICENSE",
+		"voice-fix.config.example.json"
 	],
 	"repository": {
 		"type": "git",

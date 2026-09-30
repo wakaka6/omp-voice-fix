@@ -29,6 +29,11 @@ const STRINGS = {
 		attachmentsBroken: elapsed => `voice-fix: 附件标记被改动（${elapsed}），已放弃校对结果`,
 		unchanged: elapsed => `voice-fix: 无需修改（${elapsed}）`,
 		applied: elapsed => `voice-fix: 已回填（校对耗时 ${elapsed}）`,
+		restored: "voice-fix: 已还原原文",
+		nothingToUndo: "voice-fix: 没有可还原的草稿",
+		vfUndoDesc: "还原 voice-fix 替换前的草稿",
+		escRestore: "Esc 还原原文",
+		dictationHint: lang => `- 口述语言为 ${lang}，输出语言不变。`,
 		systemPrompt: [
 			"你是语音输入的校对器。输入是语音识别（ASR）的转写结果，常含同音错字、漏字、错分段和口语冗余。",
 			"任务：结合最近的对话上下文，还原用户真正想表达的文字。",
@@ -58,6 +63,11 @@ const STRINGS = {
 		attachmentsBroken: elapsed => `voice-fix: 附件標記被改動（${elapsed}），已放棄校對結果`,
 		unchanged: elapsed => `voice-fix: 無需修改（${elapsed}）`,
 		applied: elapsed => `voice-fix: 已回填（校對耗時 ${elapsed}）`,
+		restored: "voice-fix: 已還原原文",
+		nothingToUndo: "voice-fix: 沒有可還原的草稿",
+		vfUndoDesc: "還原 voice-fix 替換前的草稿",
+		escRestore: "Esc 還原原文",
+		dictationHint: lang => `- 口述語言為 ${lang}，輸出語言不變。`,
 		systemPrompt: [
 			"你是語音輸入的校對器。輸入是語音辨識（ASR）的轉寫結果，常含同音錯字、漏字、錯分段和口語冗贅。",
 			"任務：結合最近的對話脈絡，還原使用者真正想表達的文字。",
@@ -87,6 +97,11 @@ const STRINGS = {
 		attachmentsBroken: elapsed => `voice-fix: attachment markers altered (${elapsed}); discarded result`,
 		unchanged: elapsed => `voice-fix: nothing to fix (${elapsed})`,
 		applied: elapsed => `voice-fix: applied (took ${elapsed})`,
+		restored: "voice-fix: original draft restored",
+		nothingToUndo: "voice-fix: nothing to restore",
+		vfUndoDesc: "Restore the draft as it was before voice-fix",
+		escRestore: "Esc to restore the original",
+		dictationHint: lang => `- The dictation language is ${lang}; keep the output in ${lang}.`,
 		systemPrompt: [
 			"You are a proofreader for voice dictation. The input is speech-to-text output that may contain misheard words, missing characters, bad segmentation, and filler.",
 			"Task: reconstruct what the user actually meant, using the recent conversation as context.",
@@ -102,7 +117,7 @@ const STRINGS = {
 	},
 };
 
-let config = { shortcut: ["f5", "alt+f"], model: "@tiny", locale: "auto" };
+let config = { shortcut: ["f5", "alt+f"], model: "@tiny", locale: "auto", language: "auto" };
 try {
 	config = { ...config, ...JSON.parse(readFileSync(CONFIG_URL, "utf8")) };
 } catch {
@@ -137,7 +152,25 @@ function resolveStrings(localeTag) {
 	return STRINGS.en;
 }
 
+// Language the user dictates in; "auto" follows the system locale (or `locale` config).
+// Free-form values (e.g. "Japanese", "粤语") also work — the string is inlined into the prompt.
+function resolveDictationLanguage() {
+	if (config.language !== "auto") return config.language;
+	const tag = detectLocale().replace(/_/g, "-").replace(/[.@+].*$/, "");
+	if (!tag) return "";
+	if (tag.startsWith("zh")) {
+		return /hant|tw|hk|mo/.test(tag) ? "Traditional Chinese" : "Chinese";
+	}
+	try {
+		const name = new Intl.DisplayNames(["en"], { type: "language" }).of(tag.split("-")[0]);
+		return typeof name === "string" && name !== tag.split("-")[0] ? name : "";
+	} catch {
+		return "";
+	}
+}
+
 const t = resolveStrings(detectLocale());
+const dictationLanguage = resolveDictationLanguage();
 
 export default function (pi) {
 	let lastOriginal; // 最近一次被替换的草稿原文，供 /vf-undo 恢复
@@ -204,7 +237,7 @@ export default function (pi) {
 		if (lastAssistantText) {
 			contextBlock += `\n\n${t.assistantContextHeader}\n${lastAssistantText.slice(-1500)}`;
 		}
-		const systemPrompt = t.systemPrompt + contextBlock;
+		const systemPrompt = t.systemPrompt + (dictationLanguage ? `\n${t.dictationHint(dictationLanguage)}` : "") + contextBlock;
 		const messages = [{ role: "user", content: original, timestamp: Date.now() }];
 
 		const abort = new AbortController();
@@ -293,7 +326,7 @@ export default function (pi) {
 				ctx.ui.setEditorText(lastOriginal);
 				lastOriginal = undefined;
 				stopUndoListener();
-				ctx.ui.notify("voice-fix: 已还原原文", "info");
+				ctx.ui.notify(t.restored, "info");
 				return { consume: true };
 			}
 			// 任何其他输入（继续打字、提交、双击 Esc 等）视为接受了校对结果，撤销窗口关闭
@@ -302,7 +335,7 @@ export default function (pi) {
 			return undefined;
 		});
 		ctx.ui.setEditorText(corrected);
-		ctx.ui.notify(`${t.applied(fixTime)} — Esc 还原原文`, "info");
+		ctx.ui.notify(`${t.applied(fixTime)} — ${t.escRestore}`, "info");
 	}
 
 	pi.registerCommand("vf", {
@@ -311,15 +344,15 @@ export default function (pi) {
 	});
 
 	pi.registerCommand("vf-undo", {
-		description: "还原 voice-fix 替换前的草稿",
+		description: t.vfUndoDesc,
 		handler: async (_args, ctx) => {
 			if (lastOriginal === undefined) {
-				ctx.ui.notify("voice-fix: 没有可还原的草稿", "info");
+				ctx.ui.notify(t.nothingToUndo, "info");
 				return;
 			}
 			ctx.ui.setEditorText(lastOriginal);
 			lastOriginal = undefined;
-			ctx.ui.notify("voice-fix: 已还原原文", "info");
+			ctx.ui.notify(t.restored, "info");
 		},
 	});
 
