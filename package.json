@@ -1,9 +1,32 @@
 {
 	"name": "omp-voice-fix",
 	"version": "0.1.0",
-	"description": "Fix ASR/voice-dictation drafts in the omp composer with a small model — one keystroke, context-aware, cancellable.",
-	"type": "module",
+	"description": "Fix ASR/voice-dictation drafts in the omp composer with a small model — one keystroke, context-aware, cancellable, undoable.",
+	"keywords": [
+		"pi-package",
+		"omp",
+		"voice",
+		"asr",
+		"dictation",
+		"proofreading",
+		"extension"
+	],
 	"license": "MIT",
+	"author": "wakaka6",
+	"type": "module",
+	"files": [
+		"index.ts",
+		"README.md",
+		"LICENSE"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:wakaka6/omp-voice-fix.git"
+	},
+	"homepage": "https://github.com/wakaka6/omp-voice-fix",
+	"pi": {
+		"extensions": ["./index.ts"]
+	},
 	"omp": {
 		"extensions": ["./index.ts"]
 	}
