@@ -17,6 +17,7 @@
 	"files": [
 		"index.ts",
 		"README.md",
+		"README.zh-CN.md",
 		"LICENSE",
 		"voice-fix.config.example.json"
 	],
