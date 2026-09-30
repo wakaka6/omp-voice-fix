@@ -6,7 +6,7 @@ Fix voice-dictation (ASR) transcripts in the omp composer — one keystroke, wit
 
 ## Features
 
-- **One keystroke** — press the shortcut (default `F5` or `Alt+F`) or run `/vf` while a draft sits in the composer.
+- **One keystroke** — press the shortcut (default `Alt+Z`) or run `/vf` while a draft sits in the composer.
 - **Context-aware** — recent user messages and the assistant's last reply are fed to the model, so technical terms and project vocabulary survive (`fallback` won't become "full back").
 - **Apply-then-undo** — the corrected draft replaces the composer text immediately; `Ctrl+-` (editor undo) or `/vf-undo` restores the original.
 - **Cancellable with live timer** — the status bar shows `Proofreading… 1.3s (Esc to cancel)`; `Esc` aborts at any point.
@@ -36,7 +36,7 @@ Restart omp after adding it.
 
 | Action | How |
 |---|---|
-| Proofread the draft | `F5` or `Alt+F` (default), or `/vf` |
+| Proofread the draft | `Alt+Z` (default) or `/vf` |
 | Show current shortcut | `/voice-fix-key` |
 | Change shortcut | `/voice-fix-key <key>` — e.g. `/voice-fix-key ctrl+e` (restart required) |
 | Cancel during proofreading | `Esc` |
@@ -48,7 +48,7 @@ Restart omp after adding it.
 
 ```json
 {
-	"shortcut": ["f5", "alt+f"],
+	"shortcut": ["alt+z"],
 	"model": "@tiny",
 	"locale": "auto",
 	"language": "auto"
@@ -57,7 +57,7 @@ Restart omp after adding it.
 
 | Key | Default | Meaning |
 |---|---|---|
-| `shortcut` | `["f5", "alt+f"]` | Key id or array of key ids (`f5`, `alt+f`, `ctrl+shift+v`, …). Note: some terminals/multiplexers swallow function keys — `alt+f` is a reliable fallback. |
+| `shortcut` | `["alt+z"]` | Key id or array of key ids (`alt+z`, `f6`, `ctrl+shift+v`, …). On macOS, `Alt` shortcuts need the terminal's "Option as Meta" setting. |
 | `model` | `"@tiny"` | Model selector or role alias (`@tiny`, `@smol`, `provider/model-id`, optional `:effort` suffix). Auth is resolved through omp's `modelRegistry`, no extra API keys needed. |
 | `locale` | `"auto"` | `"en"` / `"zh"` / `"auto"` (auto reads `LC_ALL`/`LANG`, defaults to English). |
 | `language` | `"auto"` | The language the draft is dictated in, stated to the model so it keeps the output in that language. `"auto"` derives it from the UI locale — set it explicitly (e.g. `"Chinese"`, `"Japanese"`) when dictation differs from your system language. |
@@ -67,7 +67,7 @@ A `voice-fix.config.example.json` ships alongside the extension as a starting te
 
 ## How it works
 
-1. `F5`/`Alt+F`/`/vf` reads the composer draft.
+1. `Alt+Z`/`/vf` reads the composer draft.
 2. Recent context (last 3 user messages + last assistant reply, text only) is inlined into the system prompt — no synthetic message objects, which avoids provider-side validation issues.
 3. `streamSimple` calls the configured model with `disableReasoning: true` via an `AbortController` wired to `Esc`.
 4. The result is compared against attachment markers, then written back with `setEditorText` — pending image attachments survive because `setText` never clears them. The pre-fix original is kept in memory for `/vf-undo` and in the editor's undo stack.
@@ -85,7 +85,7 @@ A `voice-fix.config.example.json` ships alongside the extension as a starting te
 
 ## 特性
 
-- **一键校对**：草稿就绪后按 `F5`/`Alt+F` 或输 `/vf`
+- **一键校对**：草稿就绪后按 `Alt+Z` 或输 `/vf`
 - **上下文感知**：带上最近的对话，技术词、项目名词不会被"翻译"丢
 - **先改后撤**：校对结果直接回填，改坏了 `Ctrl+-` 撤销或 `/vf-undo` 还原原文
 - **可取消 + 计时**：状态栏实时显示耗时，`Esc` 随时取消
@@ -107,7 +107,7 @@ extensions:
 
 | 操作 | 方式 |
 |---|---|
-| 校对草稿 | `F5` / `Alt+F` 或 `/vf` |
+| 校对草稿 | `Alt+Z` 或 `/vf` |
 | 查看当前快捷键 | `/voice-fix-key` |
 | 改快捷键 | `/voice-fix-key <键名>`（重启生效） |
 | 校对中取消 | `Esc` |
@@ -119,7 +119,7 @@ extensions:
 
 | 字段 | 默认 | 说明 |
 |---|---|---|
-| `shortcut` | `["f5", "alt+f"]` | 快捷键键名或键名数组 |
+| `shortcut` | `["alt+z"]` | 快捷键键名或键名数组；macOS 上 `Alt` 组合键需在终端开启「Option 作为 Meta 键」 |
 | `model` | `"@tiny"` | 模型选择器或角色别名 |
 | `locale` | `"auto"` | `"en"` / `"zh"` / `"auto"`（自动读取 `LC_ALL`/`LANG`） |
 | `language` | `"auto"` | 口述语言，会告知模型让输出保持该语言；`"auto"` 跟随系统语言，口述与系统语言不同时请显式设置（如 `"Chinese"`、`"Japanese"`） |

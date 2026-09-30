@@ -1,5 +1,5 @@
 {
-	"shortcut": ["f5", "alt+f"],
+	"shortcut": ["alt+z"],
 	"model": "@tiny",
 	"locale": "auto",
 	"language": "auto"

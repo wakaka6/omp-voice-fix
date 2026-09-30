@@ -15,7 +15,7 @@ const ATTACHMENT_TOKEN = /\[Image #\d+[^\]]*\]|\[Paste #\d+[^\]]*\]/g;
 const STRINGS = {
 	"zh": {
 		shortcutDesc: "用模型校对语音识别草稿",
-		keyCmdDesc: "改 voice-fix 快捷键，用法: /voice-fix-key <键名>，如 f5、ctrl+shift+v、alt+x",
+		keyCmdDesc: "改 voice-fix 快捷键，用法: /voice-fix-key <键名>，如 alt+z、ctrl+shift+v、f6",
 		vfDesc: "校对当前草稿（等同快捷键）",
 		currentKeys: keys => `当前快捷键: ${keys}（改后需重启 omp 生效）`,
 		invalidKey: key => `无效键名: ${key}`,
@@ -49,7 +49,7 @@ const STRINGS = {
 	},
 	"zh-hant": {
 		shortcutDesc: "用模型校對語音辨識草稿",
-		keyCmdDesc: "改 voice-fix 快捷鍵，用法: /voice-fix-key <鍵名>，如 f5、ctrl+shift+v、alt+x",
+		keyCmdDesc: "改 voice-fix 快捷鍵，用法: /voice-fix-key <鍵名>，如 alt+z、ctrl+shift+v、f6",
 		vfDesc: "校對目前草稿（等同快捷鍵）",
 		currentKeys: keys => `目前快捷鍵: ${keys}（改後需重啟 omp 生效）`,
 		invalidKey: key => `無效鍵名: ${key}`,
@@ -83,7 +83,7 @@ const STRINGS = {
 	},
 	en: {
 		shortcutDesc: "Proofread the voice-dictation draft with a small model",
-		keyCmdDesc: "Change the voice-fix shortcut: /voice-fix-key <key>, e.g. f5, ctrl+shift+v, alt+x",
+		keyCmdDesc: "Change the voice-fix shortcut: /voice-fix-key <key>, e.g. alt+z, ctrl+shift+v, f6",
 		vfDesc: "Proofread the current draft (same as the shortcut)",
 		currentKeys: keys => `Current shortcut: ${keys} (takes effect after restarting omp)`,
 		invalidKey: key => `Invalid key name: ${key}`,
@@ -117,7 +117,7 @@ const STRINGS = {
 	},
 };
 
-let config = { shortcut: ["f5", "alt+f"], model: "@tiny", locale: "auto", language: "auto" };
+let config = { shortcut: ["alt+z"], model: "@tiny", locale: "auto", language: "auto" };
 try {
 	config = { ...config, ...JSON.parse(readFileSync(CONFIG_URL, "utf8")) };
 } catch {
